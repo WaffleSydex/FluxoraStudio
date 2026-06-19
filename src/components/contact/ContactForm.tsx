@@ -18,7 +18,7 @@ const services = [
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export default function ContactForm() {
+export default function ContactForm({ dark = false }: { dark?: boolean }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [service, setService] = useState(services[0]);
@@ -65,14 +65,17 @@ export default function ContactForm() {
     }
   }
 
-  const field =
-    "w-full border-b border-ink/20 bg-transparent py-3 text-lg outline-none transition-colors placeholder:text-ink/30 focus:border-accent";
+  const field = dark
+    ? "w-full border-b border-bone/20 bg-transparent py-3 text-lg text-bone outline-none transition-colors placeholder:text-bone/30 focus:border-accent-400"
+    : "w-full border-b border-ink/20 bg-transparent py-3 text-lg outline-none transition-colors placeholder:text-ink/30 focus:border-accent";
+
+  const labelCls = dark ? "text-xs uppercase tracking-[0.2em] text-bone/40" : "text-xs uppercase tracking-[0.2em] text-ink/40";
 
   if (status === "sent") {
     return (
-      <div className="rounded-xl border border-ink/15 bg-white p-10">
+      <div className={`rounded-xl border p-10 ${dark ? "border-bone/15 bg-bone/5" : "border-ink/15 bg-white"}`}>
         <h3 className="font-display text-3xl font-medium uppercase tracking-tight">Message sent</h3>
-        <p className="mt-3 text-ink/60">
+        <p className={`mt-3 ${dark ? "text-bone/60" : "text-ink/60"}`}>
           Thanks — we&apos;ve got your enquiry and will reply within one business day.
         </p>
         <button
@@ -101,11 +104,11 @@ export default function ContactForm() {
 
       <div className="grid gap-8 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.2em] text-ink/40">Your name</span>
+          <span className={labelCls}>Your name</span>
           <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" className={field} />
         </label>
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.2em] text-ink/40">Email</span>
+          <span className={labelCls}>Email</span>
           <input
             required
             type="email"
@@ -119,21 +122,21 @@ export default function ContactForm() {
 
       <div className="grid gap-8 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.2em] text-ink/40">What do you need?</span>
-          <select value={service} onChange={(e) => setService(e.target.value)} className={field}>
+          <span className={labelCls}>What do you need?</span>
+          <select value={service} onChange={(e) => setService(e.target.value)} className={`${field} ${dark ? "bg-transparent [&>option]:bg-[#0d0d0d] [&>option]:text-bone" : ""}`}>
             {services.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
         </label>
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.2em] text-ink/40">Budget (optional)</span>
+          <span className={labelCls}>Budget (optional)</span>
           <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="$5k – $10k" className={field} />
         </label>
       </div>
 
       <label className="block">
-        <span className="text-xs uppercase tracking-[0.2em] text-ink/40">Tell us about it</span>
+        <span className={labelCls}>Tell us about it</span>
         <textarea
           required
           rows={4}
@@ -151,7 +154,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={status === "sending" || (TURNSTILE_ENABLED && !token)}
-        className="group inline-flex items-center gap-3 rounded-full bg-ink px-8 py-4 text-sm uppercase tracking-[0.18em] text-bone transition-colors hover:bg-ink-700 disabled:opacity-50"
+        className={`group inline-flex items-center gap-3 rounded-full px-8 py-4 text-sm uppercase tracking-[0.18em] transition-colors disabled:opacity-50 ${dark ? "bg-bone text-ink hover:bg-bone/90" : "bg-ink text-bone hover:bg-ink/90"}`}
       >
         {status === "sending" ? "Sending…" : "Send enquiry"}
         <span className="transition-transform duration-500 ease-expo group-hover:translate-x-1">&#8594;</span>

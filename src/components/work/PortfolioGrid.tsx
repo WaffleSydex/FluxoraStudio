@@ -34,7 +34,6 @@ export default function PortfolioGrid({
 
   return (
     <div className="max-w-site container-px">
-      {/* Category filters */}
       {showFilters && categories.length > 2 && (
         <div className="mb-10 flex flex-wrap gap-2">
           {categories.map((cat) => (
@@ -53,8 +52,7 @@ export default function PortfolioGrid({
         </div>
       )}
 
-      {/* Bento grid */}
-      <motion.div layout className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
+      <motion.div layout className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5">
         <AnimatePresence mode="popLayout">
           {filtered.map((item, i) => (
             <GridCard
@@ -72,17 +70,8 @@ export default function PortfolioGrid({
   );
 }
 
-function getColSpan(item: PortfolioItem, index: number): string {
-  // featured items and every 5th always span wide
-  if (item.featured || index % 5 === 0) return "lg:col-span-8";
-  // alternate between medium and narrow
-  return index % 2 === 0 ? "lg:col-span-7" : "lg:col-span-5";
-}
-
-function getAspect(item: PortfolioItem, index: number): string {
-  if (item.featured || index % 5 === 0) return "aspect-[16/9]";
-  if (index % 3 === 1) return "aspect-[4/5]";
-  return "aspect-[3/4]";
+function isFull(item: PortfolioItem, index: number): boolean {
+  return item.featured || index % 3 === 0;
 }
 
 function GridCard({
@@ -96,24 +85,23 @@ function GridCard({
 }) {
   const thumb = getThumb(item);
   const video = isVideo(item);
-  const colSpan = getColSpan(item, index);
-  const aspect = getAspect(item, index);
+  const full = isFull(item, index);
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: (index % 4) * 0.06 }}
-      className={`sm:col-span-1 ${colSpan}`}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: (index % 3) * 0.07 }}
+      className={full ? "sm:col-span-2" : "sm:col-span-1"}
     >
       <button
         onClick={onOpen}
         className="group relative block w-full overflow-hidden rounded-2xl bg-ink/5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         {/* Media */}
-        <div className={`relative w-full overflow-hidden ${aspect}`}>
+        <div className={`relative w-full overflow-hidden ${full ? "aspect-[16/8]" : "aspect-[4/3]"}`}>
           {thumb ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -136,44 +124,44 @@ function GridCard({
               }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-ink/10">
-              <span className="font-display text-2xl uppercase tracking-[0.2em] text-ink/30">
-                {item.category}
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-ink/8">
+              <span className="font-display text-4xl font-semibold uppercase tracking-tight text-ink/20">
+                {item.title.charAt(0)}
               </span>
+              <span className="text-xs uppercase tracking-[0.2em] text-ink/30">{item.category}</span>
             </div>
           )}
 
-          {/* Gradient overlay — always visible at bottom */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
+          {/* Gradient */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent opacity-90" />
 
-          {/* Play icon for videos */}
+          {/* Play icon */}
           {video && (
-            <span className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-bone/90 text-ink shadow-sm transition-transform duration-300 group-hover:scale-110">
-              <svg viewBox="0 0 24 24" className="h-4 w-4 translate-x-[1px]" fill="currentColor">
+            <span className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-bone/90 text-ink shadow-sm transition-transform duration-300 group-hover:scale-110">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 translate-x-[2px]" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
           )}
 
-          {/* Meta — always visible at bottom */}
-          <div className="absolute inset-x-0 bottom-0 p-5">
+          {/* Meta */}
+          <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
             <div className="flex items-end justify-between gap-3">
               <div className="text-bone">
-                <h3 className="font-display text-lg font-medium uppercase leading-tight tracking-tight md:text-xl">
+                <h3 className={`font-display font-semibold uppercase leading-tight tracking-tight ${full ? "text-2xl md:text-3xl" : "text-xl"}`}>
                   {item.title}
                 </h3>
                 {item.client && (
-                  <p className="mt-0.5 text-sm text-bone/60">{item.client}</p>
+                  <p className="mt-1 text-sm text-bone/60">{item.client}</p>
                 )}
               </div>
-              <span className="shrink-0 rounded-full border border-bone/30 px-3 py-1 text-xs uppercase tracking-[0.15em] text-bone/80">
+              <span className="shrink-0 rounded-full border border-bone/25 bg-bone/10 px-3 py-1.5 text-xs uppercase tracking-[0.15em] text-bone/80 backdrop-blur-sm">
                 {item.category}
               </span>
             </div>
 
-            {/* Description — reveals on hover */}
             {item.description && (
-              <p className="mt-2 line-clamp-2 max-h-0 overflow-hidden text-sm text-bone/70 transition-all duration-500 ease-expo group-hover:max-h-20">
+              <p className="mt-2 line-clamp-2 max-h-0 overflow-hidden text-sm text-bone/65 transition-all duration-500 ease-expo group-hover:max-h-16">
                 {item.description}
               </p>
             )}

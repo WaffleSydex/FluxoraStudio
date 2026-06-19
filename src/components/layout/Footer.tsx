@@ -9,12 +9,14 @@ const pages = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/work", label: "Work" },
+  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
 export default function Footer({ settings }: { settings: SiteSettings }) {
   const year = new Date().getFullYear();
+  const socials = socials.filter((s) => s.url && s.url.trim() !== "");
 
   return (
     <footer className="relative overflow-hidden bg-ink text-bone">
@@ -102,11 +104,11 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
               )}
             </ul>
 
-            {settings.socials.length > 0 && (
+            {socials.length > 0 && (
               <div className="mt-8">
                 <p className="text-xs uppercase tracking-[0.3em] text-bone/35">Follow</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {settings.socials.map((s) => (
+                  {socials.map((s) => (
                     <a
                       key={s.platform + s.url}
                       href={s.url}

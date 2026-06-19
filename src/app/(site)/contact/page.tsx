@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/layout/PageHero";
 import { getSettings } from "@/lib/data";
 import ContactForm from "@/components/contact/ContactForm";
+import ContactHero from "@/components/contact/ContactHero";
 import SocialIcon from "@/components/ui/SocialIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import Faq from "@/components/ui/Faq";
@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 };
 
 const steps = [
-  { n: "01", t: "You reach out", d: "Send the form with a few lines about your business and what you need. The more context, the better." },
-  { n: "02", t: "We reply fast", d: "Within one business day — usually with a couple of clarifying questions or a quick call invite." },
-  { n: "03", t: "We scope it", d: "You get a clear plan, timeline and quote — no jargon, no surprises, no hidden fees." },
-  { n: "04", t: "We get to work", d: "Kickoff, then steady progress with regular check-ins and updates until it's live and performing." },
+  { n: "01", t: "You reach out", d: "Send the form or email us. A few lines about your business and what you need is all we need to get started." },
+  { n: "02", t: "We reply fast", d: "Within one business day — often sooner. We might ask a couple of clarifying questions or invite you to a quick call." },
+  { n: "03", t: "We scope it", d: "You get a clear plan, timeline and quote. No jargon, no surprises, no hidden fees." },
+  { n: "04", t: "We get to work", d: "Kickoff, steady progress, regular check-ins — until the work is live and performing." },
 ];
 
 const goodFit = [
   "You want senior people doing the work, not juniors",
-  "You need more than one channel covered — web, social, video, ads",
-  "You're tired of stitching together different freelancers",
+  "You need more than one channel covered",
+  "You're tired of stitching together freelancers",
   "You want strategy and execution under one roof",
   "You care about results, not just deliverables",
   "You want a long-term partner, not a one-off vendor",
@@ -39,7 +39,7 @@ const faqs: FaqItem[] = [
   },
   {
     q: "What should I include in my message?",
-    a: "A sentence or two about your business, what you're looking for, a rough timeline, and a budget range if you have one. The more context, the better our first reply.",
+    a: "A sentence or two about your business, what you're looking for, a rough timeline, and a budget range if you have one.",
   },
   {
     q: "Do you work with international clients?",
@@ -70,113 +70,112 @@ export default async function ContactPage() {
     <>
       <JsonLd data={[contactSchema, faqSchema(faqs)]} />
 
-      <PageHero
-        label="Contact"
-        title="Start a project"
-        intro="Tell us what you're building. Fill in the form or reach out directly — we reply within one business day and get straight to the point."
-      />
+      <ContactHero email={settings.contact_email} />
 
-      {/* Good fit checklist */}
-      <section className="bg-ink py-10 text-bone md:py-14">
-        <div className="max-w-site container-px grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-          <Reveal>
-            <p className="chip text-bone/50">Is this for you?</p>
-            <h2 className="mt-6 font-display text-3xl font-semibold uppercase leading-tight tracking-tight md:text-4xl">
-              You&apos;re in the right place if&hellip;
-            </h2>
-          </Reveal>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {goodFit.map((item, i) => (
-              <Reveal key={item} delay={i} as="div">
-                <div className="flex items-start gap-3 rounded-xl border border-bone/10 p-4">
-                  <span className="mt-0.5 text-accent-400">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                      <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  <span className="text-sm text-bone/75">{item}</span>
-                </div>
+      {/* Form + sidebar — split panel */}
+      <section className="bg-ink text-bone">
+        <div className="max-w-site container-px grid lg:grid-cols-[1fr_1.5fr]">
+          {/* Left: contact info + good fit */}
+          <div className="border-b border-bone/10 py-12 md:py-16 lg:border-b-0 lg:border-r lg:pr-14">
+            <Reveal>
+              <p className="chip text-bone/50">Who this is for</p>
+              <h2 className="mt-6 font-display text-2xl font-semibold uppercase leading-tight tracking-tight md:text-3xl">
+                You&apos;re in the right place if&hellip;
+              </h2>
+            </Reveal>
+            <ul className="mt-8 space-y-3">
+              {goodFit.map((item, i) => (
+                <Reveal key={item} delay={i} as="li">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-1 shrink-0 text-accent-400">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                        <path d="M2 7l3.5 3.5L12 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span className="text-sm text-bone/70">{item}</span>
+                  </div>
+                </Reveal>
+              ))}
+            </ul>
+
+            <div className="mt-12 space-y-8 border-t border-bone/10 pt-10">
+              <Reveal>
+                <p className="text-xs uppercase tracking-[0.2em] text-bone/40">Response time</p>
+                <p className="mt-2 font-display text-2xl">Within 1 business day</p>
               </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Form + sidebar */}
-      <section className="max-w-site container-px py-12 md:py-20">
-        <div className="grid gap-16 lg:grid-cols-[1.4fr_1fr]">
-          <Reveal>
-            <ContactForm />
-          </Reveal>
-
-          <Reveal delay={1}>
-            <aside className="space-y-10 lg:border-l lg:border-ink/10 lg:pl-16">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Email us directly</p>
+              <Reveal delay={1}>
+                <p className="text-xs uppercase tracking-[0.2em] text-bone/40">Email us directly</p>
                 <a
                   href={`mailto:${settings.contact_email}`}
                   className="link-underline mt-2 block font-display text-xl"
                 >
                   {settings.contact_email}
                 </a>
-              </div>
-
+              </Reveal>
               {settings.contact_address && (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Where we work</p>
+                <Reveal delay={2}>
+                  <p className="text-xs uppercase tracking-[0.2em] text-bone/40">Where we work</p>
                   <p className="mt-2 font-display text-xl">{settings.contact_address}</p>
-                </div>
+                </Reveal>
               )}
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Response time</p>
-                <p className="mt-2 font-display text-xl">Within 1 business day</p>
-              </div>
-
-              {settings.socials.length > 0 && (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Follow our work</p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {settings.socials.map((s) => (
+              {settings.socials.filter((s) => s.url?.trim()).length > 0 && (
+                <Reveal delay={3}>
+                  <p className="text-xs uppercase tracking-[0.2em] text-bone/40">Follow our work</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {settings.socials.filter((s) => s.url?.trim()).map((s) => (
                       <a
                         key={s.platform + s.url}
                         href={s.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={s.platform}
-                        className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/20 text-ink/70 transition-colors hover:border-ink hover:bg-ink hover:text-bone"
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-bone/20 text-bone/60 transition-colors hover:border-bone hover:bg-bone hover:text-ink"
                       >
                         <SocialIcon platform={s.platform} />
                       </a>
                     ))}
                   </div>
-                </div>
+                </Reveal>
               )}
-            </aside>
-          </Reveal>
+            </div>
+          </div>
+
+          {/* Right: form */}
+          <div className="py-12 md:py-16 lg:pl-14">
+            <Reveal>
+              <p className="chip text-bone/50">Start a project</p>
+              <h2 className="mt-4 font-display text-2xl font-semibold uppercase tracking-tight md:text-3xl">
+                Send us a message
+              </h2>
+              <p className="mt-3 text-sm text-bone/50">
+                Fill in a few details and we&apos;ll get back to you with next steps.
+              </p>
+            </Reveal>
+            <div className="mt-8">
+              <ContactForm dark />
+            </div>
+          </div>
         </div>
       </section>
 
       {/* What happens next */}
-      <section className="bg-ink py-12 text-bone md:py-20">
-        <div className="max-w-site container-px">
-          <Reveal>
-            <p className="chip text-bone/50">What happens next</p>
-            <h2 className="mt-6 max-w-2xl font-display font-semibold uppercase text-display">
-              From hello to launch
-            </h2>
-          </Reveal>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-bone/10 bg-bone/10 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((s, i) => (
-              <Reveal key={s.n} delay={i} as="div">
-                <div className="h-full bg-ink p-8">
-                  <span className="font-display text-4xl font-semibold text-bone/15">{s.n}</span>
-                  <h3 className="mt-6 font-display text-xl font-medium uppercase tracking-tight">{s.t}</h3>
-                  <p className="mt-3 text-bone/60">{s.d}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+      <section className="max-w-site container-px py-12 md:py-20">
+        <Reveal>
+          <p className="chip text-ink/50">What happens next</p>
+          <h2 className="mt-6 max-w-2xl font-display font-semibold uppercase text-display">
+            From hello to launch
+          </h2>
+        </Reveal>
+        <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((s, i) => (
+            <Reveal key={s.n} delay={i} as="div">
+              <div className="group h-full bg-bone p-8 transition-colors duration-500 hover:bg-ink">
+                <span className="font-display text-4xl font-semibold text-ink/12 transition-colors duration-500 group-hover:text-bone/15">{s.n}</span>
+                <h3 className="mt-6 font-display text-xl font-medium uppercase tracking-tight transition-colors duration-500 group-hover:text-bone">{s.t}</h3>
+                <p className="mt-3 text-ink/60 transition-colors duration-500 group-hover:text-bone/60">{s.d}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
