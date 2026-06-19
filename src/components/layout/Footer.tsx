@@ -97,16 +97,6 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                   </a>
                 </li>
               )}
-              {settings.contact_phone && (
-                <li>
-                  <a
-                    href={`tel:${settings.contact_phone.replace(/\s/g, "")}`}
-                    className="link-underline text-bone/70 hover:text-bone"
-                  >
-                    {settings.contact_phone}
-                  </a>
-                </li>
-              )}
               {settings.contact_address && (
                 <li className="text-bone/50">{settings.contact_address}</li>
               )}

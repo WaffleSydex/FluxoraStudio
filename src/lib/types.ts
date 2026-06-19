@@ -5,15 +5,22 @@ export interface SocialLink {
   url: string;
 }
 
+export interface Testimonial {
+  quote: string;
+  name: string;
+  role: string;
+  company?: string;
+}
+
 export interface SiteSettings {
   id: number;
   company_name: string;
   tagline: string;
   footer_blurb: string;
   contact_email: string;
-  contact_phone: string;
   contact_address: string;
   socials: SocialLink[];
+  testimonials: Testimonial[];
   updated_at: string;
 }
 
@@ -50,7 +57,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   footer_blurb:
     "A creative marketing studio building brands, content and momentum. Websites, social, video and everything in between.",
   contact_email: "info@fluxorastudio.com",
-  contact_phone: "",
   contact_address: "Remote / Worldwide",
   socials: [
     { platform: "instagram", url: "https://instagram.com/fluxorastudio" },
@@ -58,6 +64,26 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     { platform: "youtube", url: "https://youtube.com/@fluxorastudio" },
     { platform: "linkedin", url: "https://linkedin.com/company/fluxorastudio" },
     { platform: "x", url: "https://x.com/fluxorastudio" },
+  ],
+  testimonials: [
+    {
+      quote: "Fluxora rebuilt our site and ran our social in one go. Leads doubled in a quarter and we finally look the part.",
+      name: "Maya R.",
+      role: "Founder",
+      company: "Atlas Co.",
+    },
+    {
+      quote: "Their video team is unreal. The reels they cut for us outperformed everything we'd ever posted.",
+      name: "Daniel K.",
+      role: "Head of Brand",
+      company: "Pulse",
+    },
+    {
+      quote: "One studio for brand, web and content. No more juggling five freelancers — and the work is sharper.",
+      name: "Lena T.",
+      role: "CMO",
+      company: "Drift",
+    },
   ],
   updated_at: new Date(0).toISOString(),
 };

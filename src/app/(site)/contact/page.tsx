@@ -121,18 +121,6 @@ export default async function ContactPage() {
                 </a>
               </div>
 
-              {settings.contact_phone && (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Phone</p>
-                  <a
-                    href={`tel:${settings.contact_phone.replace(/\s/g, "")}`}
-                    className="link-underline mt-2 block font-display text-xl"
-                  >
-                    {settings.contact_phone}
-                  </a>
-                </div>
-              )}
-
               {settings.contact_address && (
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Where we work</p>

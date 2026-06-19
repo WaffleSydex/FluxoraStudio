@@ -2,18 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { DEFAULT_SETTINGS, type SiteSettings, type SocialLink } from "@/lib/types";
+import { DEFAULT_SETTINGS, type SiteSettings, type SocialLink, type Testimonial } from "@/lib/types";
 
-const SOCIAL_PLATFORMS = [
-  "instagram",
-  "tiktok",
-  "youtube",
-  "linkedin",
-  "x",
-  "facebook",
-  "behance",
-  "dribbble",
-];
+const SOCIAL_PLATFORMS = ["instagram","tiktok","youtube","linkedin","x","facebook","behance","dribbble"];
 
 export default function SettingsEditor() {
   const supabase = createClient();
@@ -30,6 +21,7 @@ export default function SettingsEditor() {
           ...DEFAULT_SETTINGS,
           ...data,
           socials: Array.isArray(data.socials) ? data.socials : [],
+          testimonials: Array.isArray(data.testimonials) ? data.testimonials : DEFAULT_SETTINGS.testimonials,
         });
       }
       setLoading(false);
@@ -41,19 +33,32 @@ export default function SettingsEditor() {
     setSettings((s) => ({ ...s, [key]: value }));
   }
 
+  /* ── Socials ── */
   function updateSocial(index: number, patch: Partial<SocialLink>) {
-    setSettings((s) => ({
-      ...s,
-      socials: s.socials.map((soc, i) => (i === index ? { ...soc, ...patch } : soc)),
-    }));
+    setSettings((s) => ({ ...s, socials: s.socials.map((soc, i) => (i === index ? { ...soc, ...patch } : soc)) }));
   }
-
   function addSocial() {
     setSettings((s) => ({ ...s, socials: [...s.socials, { platform: "instagram", url: "" }] }));
   }
-
   function removeSocial(index: number) {
     setSettings((s) => ({ ...s, socials: s.socials.filter((_, i) => i !== index) }));
+  }
+
+  /* ── Testimonials ── */
+  function updateTestimonial(index: number, patch: Partial<Testimonial>) {
+    setSettings((s) => ({
+      ...s,
+      testimonials: s.testimonials.map((t, i) => (i === index ? { ...t, ...patch } : t)),
+    }));
+  }
+  function addTestimonial() {
+    setSettings((s) => ({
+      ...s,
+      testimonials: [...s.testimonials, { quote: "", name: "", role: "", company: "" }],
+    }));
+  }
+  function removeTestimonial(index: number) {
+    setSettings((s) => ({ ...s, testimonials: s.testimonials.filter((_, i) => i !== index) }));
   }
 
   async function save() {
@@ -64,9 +69,9 @@ export default function SettingsEditor() {
       tagline: settings.tagline,
       footer_blurb: settings.footer_blurb,
       contact_email: settings.contact_email,
-      contact_phone: settings.contact_phone,
       contact_address: settings.contact_address,
       socials: settings.socials.filter((s) => s.url.trim() !== ""),
+      testimonials: settings.testimonials.filter((t) => t.quote.trim() !== ""),
     };
     try {
       const res = await fetch("/api/admin/settings", {
@@ -86,12 +91,12 @@ export default function SettingsEditor() {
 
   if (loading) return <p className="text-ink/50">Loading…</p>;
 
-  const field =
-    "mt-2 w-full rounded-lg border border-ink/15 bg-white px-4 py-3 outline-none transition-colors focus:border-accent";
+  const field = "mt-2 w-full rounded-lg border border-ink/15 bg-white px-4 py-3 outline-none transition-colors focus:border-accent";
   const labelCls = "block text-xs uppercase tracking-[0.18em] text-ink/45";
 
   return (
     <div className="space-y-12">
+      {/* Footer content */}
       <section>
         <h2 className="font-display text-2xl font-medium uppercase tracking-tight">Footer content</h2>
         <p className="mt-1 text-sm text-ink/50">Tagline and the blurb shown in the footer.</p>
@@ -102,16 +107,12 @@ export default function SettingsEditor() {
           </label>
           <label>
             <span className={labelCls}>Footer blurb</span>
-            <textarea
-              rows={3}
-              className={`${field} resize-none`}
-              value={settings.footer_blurb}
-              onChange={(e) => set("footer_blurb", e.target.value)}
-            />
+            <textarea rows={3} className={`${field} resize-none`} value={settings.footer_blurb} onChange={(e) => set("footer_blurb", e.target.value)} />
           </label>
         </div>
       </section>
 
+      {/* Contact */}
       <section>
         <h2 className="font-display text-2xl font-medium uppercase tracking-tight">Contact</h2>
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
@@ -120,19 +121,19 @@ export default function SettingsEditor() {
             <input className={field} value={settings.contact_email} onChange={(e) => set("contact_email", e.target.value)} />
           </label>
           <label>
-            <span className={labelCls}>Phone</span>
-            <input className={field} value={settings.contact_phone} onChange={(e) => set("contact_phone", e.target.value)} />
-          </label>
-          <label className="sm:col-span-2">
             <span className={labelCls}>Address / location</span>
             <input className={field} value={settings.contact_address} onChange={(e) => set("contact_address", e.target.value)} />
           </label>
         </div>
       </section>
 
+      {/* Social links */}
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl font-medium uppercase tracking-tight">Social links</h2>
+          <div>
+            <h2 className="font-display text-2xl font-medium uppercase tracking-tight">Social links</h2>
+            <p className="mt-1 text-sm text-ink/50">Links shown in the footer and contact page.</p>
+          </div>
           <button onClick={addSocial} className="rounded-full border border-ink/20 px-4 py-2 text-xs uppercase tracking-[0.18em] hover:bg-ink hover:text-bone">
             + Add
           </button>
@@ -141,50 +142,72 @@ export default function SettingsEditor() {
           {settings.socials.length === 0 && <p className="text-sm text-ink/45">No social links yet.</p>}
           {settings.socials.map((soc, i) => (
             <div key={i} className="flex flex-col gap-3 rounded-lg border border-ink/10 bg-white p-3 sm:flex-row sm:items-center">
-              <select
-                value={SOCIAL_PLATFORMS.includes(soc.platform) ? soc.platform : "other"}
-                onChange={(e) => updateSocial(i, { platform: e.target.value })}
-                className="rounded-lg border border-ink/15 px-3 py-2 outline-none focus:border-accent"
-              >
-                {SOCIAL_PLATFORMS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
+              <select value={SOCIAL_PLATFORMS.includes(soc.platform) ? soc.platform : "other"} onChange={(e) => updateSocial(i, { platform: e.target.value })} className="rounded-lg border border-ink/15 px-3 py-2 outline-none focus:border-accent">
+                {SOCIAL_PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}
                 <option value="other">other</option>
               </select>
               {!SOCIAL_PLATFORMS.includes(soc.platform) && (
-                <input
-                  placeholder="platform name"
-                  value={soc.platform}
-                  onChange={(e) => updateSocial(i, { platform: e.target.value })}
-                  className="rounded-lg border border-ink/15 px-3 py-2 outline-none focus:border-accent sm:w-36"
-                />
+                <input placeholder="platform name" value={soc.platform} onChange={(e) => updateSocial(i, { platform: e.target.value })} className="rounded-lg border border-ink/15 px-3 py-2 outline-none focus:border-accent sm:w-36" />
               )}
-              <input
-                placeholder="https://…"
-                value={soc.url}
-                onChange={(e) => updateSocial(i, { url: e.target.value })}
-                className="flex-1 rounded-lg border border-ink/15 px-3 py-2 outline-none focus:border-accent"
-              />
-              <button
-                onClick={() => removeSocial(i)}
-                className="rounded-lg border border-ink/15 px-3 py-2 text-sm text-ink/60 hover:border-red-400 hover:text-red-500"
-                aria-label="Remove"
-              >
-                Remove
-              </button>
+              <input placeholder="https://…" value={soc.url} onChange={(e) => updateSocial(i, { url: e.target.value })} className="flex-1 rounded-lg border border-ink/15 px-3 py-2 outline-none focus:border-accent" />
+              <button onClick={() => removeSocial(i)} className="rounded-lg border border-ink/15 px-3 py-2 text-sm text-ink/60 hover:border-red-400 hover:text-red-500">Remove</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-2xl font-medium uppercase tracking-tight">Testimonials</h2>
+            <p className="mt-1 text-sm text-ink/50">Quotes shown on the homepage. Add, edit or remove.</p>
+          </div>
+          <button onClick={addTestimonial} className="rounded-full border border-ink/20 px-4 py-2 text-xs uppercase tracking-[0.18em] hover:bg-ink hover:text-bone">
+            + Add
+          </button>
+        </div>
+        <div className="mt-6 space-y-4">
+          {settings.testimonials.length === 0 && <p className="text-sm text-ink/45">No testimonials yet.</p>}
+          {settings.testimonials.map((t, i) => (
+            <div key={i} className="rounded-xl border border-ink/10 bg-white p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-display text-sm uppercase tracking-[0.15em] text-ink/40">Testimonial {i + 1}</span>
+                <button onClick={() => removeTestimonial(i)} className="text-xs text-ink/40 hover:text-red-500 uppercase tracking-[0.15em]">Remove</button>
+              </div>
+              <div className="grid gap-4">
+                <label>
+                  <span className={labelCls}>Quote *</span>
+                  <textarea
+                    rows={3}
+                    className={`${field} resize-none`}
+                    placeholder="What did they say?"
+                    value={t.quote}
+                    onChange={(e) => updateTestimonial(i, { quote: e.target.value })}
+                  />
+                </label>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <label>
+                    <span className={labelCls}>Name</span>
+                    <input className={field} placeholder="Maya R." value={t.name} onChange={(e) => updateTestimonial(i, { name: e.target.value })} />
+                  </label>
+                  <label>
+                    <span className={labelCls}>Role</span>
+                    <input className={field} placeholder="Founder" value={t.role} onChange={(e) => updateTestimonial(i, { role: e.target.value })} />
+                  </label>
+                  <label>
+                    <span className={labelCls}>Company</span>
+                    <input className={field} placeholder="Atlas Co." value={t.company ?? ""} onChange={(e) => updateTestimonial(i, { company: e.target.value })} />
+                  </label>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       <div className="sticky bottom-4 flex items-center gap-4">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="rounded-full bg-ink px-8 py-4 text-sm uppercase tracking-[0.18em] text-bone transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
+        <button onClick={save} disabled={saving} className="rounded-full bg-ink px-8 py-4 text-sm uppercase tracking-[0.18em] text-bone transition-opacity hover:opacity-90 disabled:opacity-50">
           {saving ? "Saving…" : "Save changes"}
         </button>
         {status && <span className="text-sm text-ink/60">{status}</span>}

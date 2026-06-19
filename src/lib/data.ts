@@ -22,6 +22,7 @@ export async function getSettings(): Promise<SiteSettings> {
       ...DEFAULT_SETTINGS,
       ...data,
       socials: Array.isArray(data.socials) ? data.socials : DEFAULT_SETTINGS.socials,
+      testimonials: Array.isArray(data.testimonials) ? data.testimonials : DEFAULT_SETTINGS.testimonials,
     } as SiteSettings;
   } catch {
     return DEFAULT_SETTINGS;
