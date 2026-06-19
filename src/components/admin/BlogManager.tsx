@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import type { BlogPost } from "@/lib/blog";
-import { generateSlug, formatDate } from "@/lib/blog";
+import type { BlogPost } from "@/lib/blog-types";
+import { generateSlug, formatDate } from "@/lib/blog-types";
 
 const CATEGORIES = ["Insights", "Strategy", "Social Media", "Web Design", "Video", "Branding", "SEO", "Email", "Paid Ads"];
 

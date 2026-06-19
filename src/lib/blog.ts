@@ -1,21 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string | null;
-  thumbnail_url: string | null;
-  category: string;
-  seo_title: string | null;
-  seo_description: string | null;
-  published: boolean;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+export type { BlogPost } from "./blog-types";
+export { generateSlug, formatDate } from "./blog-types";
+import type { BlogPost } from "./blog-types";
 
 export async function getPublishedPosts(): Promise<BlogPost[]> {
   const supabase = createClient();
@@ -45,21 +32,4 @@ export async function getAllPostsAdmin(): Promise<BlogPost[]> {
     .select("*")
     .order("created_at", { ascending: false });
   return (data ?? []) as BlogPost[];
-}
-
-export function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 }
