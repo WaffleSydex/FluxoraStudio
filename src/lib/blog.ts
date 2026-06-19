@@ -1,11 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient, hasSupabaseEnv } from "@/lib/supabase/public";
 export type { BlogPost } from "./blog-types";
 export { generateSlug, formatDate } from "./blog-types";
 import type { BlogPost } from "./blog-types";
 
 export async function getPublishedPosts(): Promise<BlogPost[]> {
-  const supabase = await createClient();
+  if (!hasSupabaseEnv()) return [];
+  const supabase = createPublicClient();
   const { data } = await supabase
     .from("blog_posts")
     .select("*")
@@ -15,7 +16,8 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const supabase = await createClient();
+  if (!hasSupabaseEnv()) return null;
+  const supabase = createPublicClient();
   const { data } = await supabase
     .from("blog_posts")
     .select("*")
