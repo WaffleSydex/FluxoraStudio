@@ -16,7 +16,7 @@ const pages = [
 
 export default function Footer({ settings }: { settings: SiteSettings }) {
   const year = new Date().getFullYear();
-  const socials = socials.filter((s) => s.url && s.url.trim() !== "");
+  const socials = settings.socials.filter((s) => s.url && s.url.trim() !== "");
 
   return (
     <footer className="relative overflow-hidden bg-ink text-bone">
