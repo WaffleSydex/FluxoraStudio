@@ -182,35 +182,36 @@ export default function ServicesPage() {
               A freelancer can't cover every channel. A big agency buries you in process. We're the third way — senior craft, full coverage, no runaround.
             </p>
           </Reveal>
+          {/* Single flat grid — all cells share column widths */}
           <div className="mt-10 overflow-hidden rounded-2xl border border-bone/10">
-            {/* Header */}
-            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-px border-b border-bone/10 bg-bone/10">
-              <div className="bg-ink px-6 py-4" />
-              {["Fluxora", "Freelancer", "Big Agency"].map((col) => (
-                <div key={col} className="bg-ink px-6 py-4 text-center">
-                  <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${col === "Fluxora" ? "text-accent-400" : "text-bone/40"}`}>
+            <div className="grid grid-cols-[1fr_100px_100px_100px] bg-bone/10 gap-px md:grid-cols-[1fr_130px_130px_130px]">
+              {/* Header row */}
+              <div className="bg-ink px-5 py-4" />
+              {(["Fluxora", "Freelancer", "Big Agency"] as const).map((col) => (
+                <div key={col} className="bg-ink px-3 py-4 text-center">
+                  <span className={`text-[10px] font-semibold uppercase tracking-[0.16em] md:text-xs ${col === "Fluxora" ? "text-accent-400" : "text-bone/40"}`}>
                     {col}
                   </span>
                 </div>
               ))}
-            </div>
-            {/* Rows */}
-            {compare.map((row, i) => (
-              <Reveal key={row.label} delay={i % 4} as="div">
-                <div className="grid grid-cols-[1fr_auto_auto_auto] gap-px border-b border-bone/10 bg-bone/10 last:border-0">
-                  <div className="bg-ink px-6 py-4 text-sm text-bone/70">{row.label}</div>
-                  <div className="flex items-center justify-center bg-ink px-6 py-4 text-accent-400">
+              {/* Data rows */}
+              {compare.map((row) => (
+                <>
+                  <div key={`${row.label}-label`} className="bg-ink px-5 py-4 text-sm text-bone/70 border-t border-bone/10">
+                    {row.label}
+                  </div>
+                  <div key={`${row.label}-us`} className="flex items-center justify-center bg-ink px-3 py-4 text-accent-400 border-t border-bone/10">
                     {row.us ? <Check /> : <Dash />}
                   </div>
-                  <div className="flex items-center justify-center bg-ink px-6 py-4 text-bone/40">
+                  <div key={`${row.label}-fl`} className="flex items-center justify-center bg-ink px-3 py-4 text-bone/40 border-t border-bone/10">
                     {row.freelancer ? <Check /> : <Dash />}
                   </div>
-                  <div className="flex items-center justify-center bg-ink px-6 py-4 text-bone/40">
+                  <div key={`${row.label}-ag`} className="flex items-center justify-center bg-ink px-3 py-4 text-bone/40 border-t border-bone/10">
                     {row.agency ? <Check /> : <Dash />}
                   </div>
-                </div>
-              </Reveal>
-            ))}
+                </>
+              ))}
+            </div>
           </div>
         </div>
       </section>

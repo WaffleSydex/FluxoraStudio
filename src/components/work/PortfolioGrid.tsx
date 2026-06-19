@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { PortfolioItem } from "@/lib/types";
 import { getThumb, isVideo } from "@/lib/portfolio";
 import Lightbox from "./Lightbox";
@@ -25,25 +25,26 @@ export default function PortfolioGrid({
 
   if (items.length === 0) {
     return (
-      <div className="max-w-site container-px py-24 text-center text-ink/50">
-        <p className="font-display text-2xl uppercase tracking-tight">No work yet</p>
-        <p className="mt-2">Add portfolio items from the admin panel to see them here.</p>
+      <div className="max-w-site container-px py-24 text-center">
+        <p className="font-display text-3xl uppercase tracking-tight text-ink/30">No work yet</p>
+        <p className="mt-3 text-ink/50">Add portfolio items from the admin panel to see them here.</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-site container-px">
+      {/* Category filters */}
       {showFilters && categories.length > 2 && (
-        <div className="mb-12 flex flex-wrap gap-2">
+        <div className="mb-10 flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActive(cat)}
-              className={`rounded-full border px-5 py-2 text-xs uppercase tracking-[0.18em] transition-colors duration-300 ${
+              className={`rounded-full px-5 py-2 text-xs uppercase tracking-[0.18em] transition-all duration-300 ${
                 active === cat
-                  ? "border-accent bg-accent text-white"
-                  : "border-ink/20 text-ink/60 hover:border-ink"
+                  ? "bg-ink text-bone shadow-sm"
+                  : "border border-ink/20 text-ink/60 hover:border-ink/60 hover:text-ink"
               }`}
             >
               {cat}
@@ -52,18 +53,39 @@ export default function PortfolioGrid({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((item, i) => (
-          <Card key={item.id} item={item} index={i} onOpen={() => setSelected(item)} />
-        ))}
-      </div>
+      {/* Bento grid */}
+      <motion.div layout className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
+        <AnimatePresence mode="popLayout">
+          {filtered.map((item, i) => (
+            <GridCard
+              key={item.id}
+              item={item}
+              index={i}
+              onOpen={() => setSelected(item)}
+            />
+          ))}
+        </AnimatePresence>
+      </motion.div>
 
       <Lightbox item={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }
 
-function Card({
+function getColSpan(item: PortfolioItem, index: number): string {
+  // featured items and every 5th always span wide
+  if (item.featured || index % 5 === 0) return "lg:col-span-8";
+  // alternate between medium and narrow
+  return index % 2 === 0 ? "lg:col-span-7" : "lg:col-span-5";
+}
+
+function getAspect(item: PortfolioItem, index: number): string {
+  if (item.featured || index % 5 === 0) return "aspect-[16/9]";
+  if (index % 3 === 1) return "aspect-[4/5]";
+  return "aspect-[3/4]";
+}
+
+function GridCard({
   item,
   index,
   onOpen,
@@ -74,66 +96,90 @@ function Card({
 }) {
   const thumb = getThumb(item);
   const video = isVideo(item);
-  const big = index % 5 === 0; // editorial rhythm — every 5th spans wide
+  const colSpan = getColSpan(item, index);
+  const aspect = getAspect(item, index);
 
   return (
-    <motion.button
+    <motion.div
+      layout
       initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: (index % 3) * 0.08 }}
-      onClick={onOpen}
-      className={`group relative block overflow-hidden rounded-xl bg-ink/5 text-left ${
-        big ? "sm:col-span-2 lg:col-span-2" : ""
-      }`}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: (index % 4) * 0.06 }}
+      className={`sm:col-span-1 ${colSpan}`}
     >
-      <div className={`relative w-full overflow-hidden ${big ? "aspect-[16/10]" : "aspect-[4/5]"}`}>
-        {thumb ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={thumb}
-            alt={item.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
-          />
-        ) : item.media_type === "video_upload" ? (
-          <video
-            src={item.media_url}
-            muted
-            loop
-            playsInline
-            className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
-            onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
-            onMouseLeave={(e) => {
-              e.currentTarget.pause();
-              e.currentTarget.currentTime = 0;
-            }}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-ink text-bone/60">
-            <span className="font-display uppercase tracking-[0.2em]">{item.category}</span>
+      <button
+        onClick={onOpen}
+        className="group relative block w-full overflow-hidden rounded-2xl bg-ink/5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        {/* Media */}
+        <div className={`relative w-full overflow-hidden ${aspect}`}>
+          {thumb ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={thumb}
+              alt={item.title}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
+            />
+          ) : item.media_type === "video_upload" ? (
+            <video
+              src={item.media_url}
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
+              onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+              onMouseLeave={(e) => {
+                e.currentTarget.pause();
+                e.currentTarget.currentTime = 0;
+              }}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-ink/10">
+              <span className="font-display text-2xl uppercase tracking-[0.2em] text-ink/30">
+                {item.category}
+              </span>
+            </div>
+          )}
+
+          {/* Gradient overlay — always visible at bottom */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
+
+          {/* Play icon for videos */}
+          {video && (
+            <span className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-bone/90 text-ink shadow-sm transition-transform duration-300 group-hover:scale-110">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 translate-x-[1px]" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+          )}
+
+          {/* Meta — always visible at bottom */}
+          <div className="absolute inset-x-0 bottom-0 p-5">
+            <div className="flex items-end justify-between gap-3">
+              <div className="text-bone">
+                <h3 className="font-display text-lg font-medium uppercase leading-tight tracking-tight md:text-xl">
+                  {item.title}
+                </h3>
+                {item.client && (
+                  <p className="mt-0.5 text-sm text-bone/60">{item.client}</p>
+                )}
+              </div>
+              <span className="shrink-0 rounded-full border border-bone/30 px-3 py-1 text-xs uppercase tracking-[0.15em] text-bone/80">
+                {item.category}
+              </span>
+            </div>
+
+            {/* Description — reveals on hover */}
+            {item.description && (
+              <p className="mt-2 line-clamp-2 max-h-0 overflow-hidden text-sm text-bone/70 transition-all duration-500 ease-expo group-hover:max-h-20">
+                {item.description}
+              </p>
+            )}
           </div>
-        )}
-
-        {/* overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-        {video && (
-          <span className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-bone/90 text-ink">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 translate-x-[1px]" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </span>
-        )}
-      </div>
-
-      <div className="absolute inset-x-0 bottom-0 flex translate-y-2 items-end justify-between gap-3 p-5 opacity-0 transition-all duration-500 ease-expo group-hover:translate-y-0 group-hover:opacity-100">
-        <div className="text-bone">
-          <h3 className="font-display text-lg font-medium uppercase tracking-tight">{item.title}</h3>
-          {item.client && <p className="text-sm text-bone/70">{item.client}</p>}
         </div>
-        <span className="chip border-bone/40 text-bone">{item.category}</span>
-      </div>
-    </motion.button>
+      </button>
+    </motion.div>
   );
 }

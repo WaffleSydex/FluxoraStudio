@@ -43,6 +43,9 @@ export default function PortfolioForm({
 }) {
   const supabase = createClient();
   const [draft, setDraft] = useState<Draft>(initial ? { ...initial } : emptyDraft());
+  const [imageMode, setImageMode] = useState<"upload" | "url">(
+    initial?.media_type === "image" && initial?.media_url ? "url" : "upload"
+  );
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,8 +56,6 @@ export default function PortfolioForm({
 
   async function uploadFile(file: File, folder: string): Promise<string> {
     const ext = file.name.split(".").pop() || "bin";
-
-    // 1. Ask the server (admin-only) for a signed upload URL.
     const res = await fetch("/api/admin/upload-url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -63,14 +64,12 @@ export default function PortfolioForm({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Could not start upload.");
 
-    // 2. Upload the file directly browser -> storage (no serverless size limit).
     const { error } = await supabase.storage
       .from(BUCKET)
       .uploadToSignedUrl(data.path, data.token, file, {
         contentType: file.type || undefined,
       });
     if (error) throw error;
-
     return data.publicUrl as string;
   }
 
@@ -98,7 +97,7 @@ export default function PortfolioForm({
     if (!file) return;
     setError(null);
     setBusy(true);
-    setProgress(`Uploading thumbnail…`);
+    setProgress("Uploading thumbnail…");
     try {
       const url = await uploadFile(file, "thumbnails");
       set("thumbnail_url", url);
@@ -117,6 +116,8 @@ export default function PortfolioForm({
       return setError(
         draft.media_type === "video_link"
           ? "Paste a YouTube or Vimeo link."
+          : draft.media_type === "image" && imageMode === "url"
+          ? "Paste an image URL."
           : "Upload a file first."
       );
 
@@ -153,6 +154,10 @@ export default function PortfolioForm({
   const field =
     "mt-2 w-full rounded-lg border border-ink/15 bg-white px-4 py-3 outline-none transition-colors focus:border-accent";
   const labelCls = "block text-xs uppercase tracking-[0.18em] text-ink/45";
+  const tabBtn = (active: boolean) =>
+    `rounded-full px-4 py-1.5 text-xs uppercase tracking-[0.18em] transition-colors ${
+      active ? "bg-ink text-bone" : "border border-ink/20 text-ink/55 hover:text-ink"
+    }`;
 
   return (
     <div className="rounded-xl border border-ink/15 bg-white p-6">
@@ -197,15 +202,15 @@ export default function PortfolioForm({
         </label>
       </div>
 
-      {/* Media type switch */}
+      {/* Media type */}
       <div className="mt-8">
-        <span className={labelCls}>Media</span>
+        <span className={labelCls}>Media type</span>
         <div className="mt-3 flex flex-wrap gap-2">
           {(
             [
-              { k: "image", label: "Upload image" },
+              { k: "image", label: "Image" },
               { k: "video_upload", label: "Upload video" },
-              { k: "video_link", label: "Video link" },
+              { k: "video_link", label: "Video link (YouTube/Vimeo)" },
             ] as { k: MediaType; label: string }[]
           ).map((opt) => (
             <button
@@ -214,18 +219,48 @@ export default function PortfolioForm({
               onClick={() => {
                 set("media_type", opt.k);
                 set("media_url", "");
+                if (opt.k === "image") setImageMode("upload");
               }}
-              className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors ${
-                draft.media_type === opt.k ? "bg-ink text-bone" : "border border-ink/20 text-ink/55 hover:text-ink"
-              }`}
+              className={tabBtn(draft.media_type === opt.k)}
             >
               {opt.label}
             </button>
           ))}
         </div>
 
+        {/* Image: toggle between upload and URL */}
+        {draft.media_type === "image" && (
+          <div className="mt-4 flex gap-2">
+            <button type="button" onClick={() => { setImageMode("upload"); set("media_url", ""); }} className={tabBtn(imageMode === "upload")}>
+              Upload file
+            </button>
+            <button type="button" onClick={() => { setImageMode("url"); set("media_url", ""); }} className={tabBtn(imageMode === "url")}>
+              Paste image URL
+            </button>
+          </div>
+        )}
+
         <div className="mt-4">
-          {draft.media_type === "video_link" ? (
+          {draft.media_type === "image" && imageMode === "url" ? (
+            <div>
+              <input
+                placeholder="https://example.com/photo.jpg"
+                className={field}
+                value={draft.media_url}
+                onChange={(e) => set("media_url", e.target.value)}
+              />
+              {draft.media_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={draft.media_url}
+                  alt="preview"
+                  className="mt-3 h-32 w-full rounded-lg object-cover"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  onLoad={(e) => (e.currentTarget.style.display = "block")}
+                />
+              )}
+            </div>
+          ) : draft.media_type === "video_link" ? (
             <input
               placeholder="https://youtube.com/watch?v=…  or  https://vimeo.com/…"
               className={field}
@@ -241,15 +276,15 @@ export default function PortfolioForm({
             />
           )}
 
-          {draft.media_url && (
+          {draft.media_url && imageMode !== "url" && (
             <p className="mt-2 break-all text-xs text-ink/45">Current: {draft.media_url}</p>
           )}
         </div>
 
-        {/* Optional thumbnail for videos */}
+        {/* Thumbnail for videos */}
         {draft.media_type !== "image" && (
           <div className="mt-6">
-            <span className={labelCls}>Thumbnail / poster (recommended for videos)</span>
+            <span className={labelCls}>Thumbnail / poster (recommended)</span>
             <input
               type="file"
               accept="image/*"

@@ -7,10 +7,8 @@ const WORD = "FLUXORA";
 
 export default function Preloader() {
   const [show, setShow] = useState(true);
-  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    // Only show once per browser session.
     if (sessionStorage.getItem("fx_loaded")) {
       setShow(false);
       return;
@@ -24,24 +22,13 @@ export default function Preloader() {
 
     document.body.style.overflow = "hidden";
 
-    let raf = 0;
-    const start = performance.now();
-    const dur = 1600;
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / dur);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setCount(Math.round(eased * 100));
-      if (p < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        sessionStorage.setItem("fx_loaded", "1");
-        setTimeout(() => setShow(false), 450);
-      }
-    };
-    raf = requestAnimationFrame(tick);
+    const timer = setTimeout(() => {
+      sessionStorage.setItem("fx_loaded", "1");
+      setShow(false);
+    }, 1800);
 
     return () => {
-      cancelAnimationFrame(raf);
+      clearTimeout(timer);
       document.body.style.overflow = "";
     };
   }, []);
@@ -75,10 +62,14 @@ export default function Preloader() {
             className="mt-8 h-px w-[60vw] max-w-md origin-left bg-bone/30"
           />
 
-          <div className="absolute bottom-8 left-0 right-0 flex items-center justify-between px-6 text-xs uppercase tracking-[0.3em] text-bone/50 md:px-12">
-            <span>Marketing in motion</span>
-            <span className="tabular-nums">{count}%</span>
-          </div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="absolute bottom-8 left-0 right-0 text-center text-xs uppercase tracking-[0.3em] text-bone/40"
+          >
+            Marketing in motion
+          </motion.p>
         </motion.div>
       )}
     </AnimatePresence>
