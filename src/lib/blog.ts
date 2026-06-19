@@ -5,7 +5,7 @@ export { generateSlug, formatDate } from "./blog-types";
 import type { BlogPost } from "./blog-types";
 
 export async function getPublishedPosts(): Promise<BlogPost[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("blog_posts")
     .select("*")
@@ -15,7 +15,7 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("blog_posts")
     .select("*")
