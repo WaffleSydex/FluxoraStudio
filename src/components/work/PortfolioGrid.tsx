@@ -59,6 +59,7 @@ export default function PortfolioGrid({
               key={item.id}
               item={item}
               index={i}
+              total={filtered.length}
               onOpen={() => setSelected(item)}
             />
           ))}
@@ -70,22 +71,30 @@ export default function PortfolioGrid({
   );
 }
 
-function isFull(item: PortfolioItem, index: number): boolean {
-  return item.featured || index % 3 === 0;
+function isFull(_item: PortfolioItem, index: number, total: number): boolean {
+  // First item is the wide hero. After that, if an odd count would leave a
+  // lone card in the last 2-col row, promote it to full width too.
+  if (index === 0) return true;
+  const isLast = index === total - 1;
+  const remainderAfterHero = total - 1; // cards after the hero
+  if (isLast && remainderAfterHero % 2 === 1) return true;
+  return false;
 }
 
 function GridCard({
   item,
   index,
+  total,
   onOpen,
 }: {
   item: PortfolioItem;
   index: number;
+  total: number;
   onOpen: () => void;
 }) {
   const thumb = getThumb(item);
   const video = isVideo(item);
-  const full = isFull(item, index);
+  const full = isFull(item, index, total);
 
   return (
     <motion.div
@@ -101,7 +110,7 @@ function GridCard({
         className="group relative block w-full overflow-hidden rounded-2xl bg-ink/5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         {/* Media */}
-        <div className={`relative w-full overflow-hidden ${full ? "aspect-[16/8]" : "aspect-[4/3]"}`}>
+        <div className={`relative w-full overflow-hidden ${full ? "aspect-[16/10] md:aspect-[2/1]" : "aspect-[4/3]"}`}>
           {thumb ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
