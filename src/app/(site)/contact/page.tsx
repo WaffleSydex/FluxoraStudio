@@ -9,18 +9,27 @@ import JsonLd from "@/components/ui/JsonLd";
 import { faqSchema, canonical, SITE_URL, type FaqItem } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Contact — Start a Marketing Project",
+  title: "Contact Fluxora Studio — Start a Marketing Project",
   description:
-    "Start a project with Fluxora Studio. Tell us about your website, social, video or branding needs and we'll reply within one business day.",
-  keywords: ["contact marketing agency", "hire marketing studio", "start a project", "marketing quote"],
+    "Ready to grow your brand? Get in touch with Fluxora Studio. Tell us about your website, social, video or branding needs and we'll reply within one business day.",
+  keywords: ["contact marketing agency", "hire marketing studio", "start a project", "marketing quote", "fluxora studio contact"],
   ...canonical("/contact"),
 };
 
 const steps = [
-  { n: "01", t: "You reach out", d: "Send the form with a few lines about your business and what you need." },
-  { n: "02", t: "We reply fast", d: "Within one business day — usually with a couple of questions or a quick call." },
-  { n: "03", t: "We scope it", d: "You get a clear plan, timeline and quote — no jargon, no surprises." },
-  { n: "04", t: "We get to work", d: "Kickoff, then steady progress with regular check-ins until it's live." },
+  { n: "01", t: "You reach out", d: "Send the form with a few lines about your business and what you need. The more context, the better." },
+  { n: "02", t: "We reply fast", d: "Within one business day — usually with a couple of clarifying questions or a quick call invite." },
+  { n: "03", t: "We scope it", d: "You get a clear plan, timeline and quote — no jargon, no surprises, no hidden fees." },
+  { n: "04", t: "We get to work", d: "Kickoff, then steady progress with regular check-ins and updates until it's live and performing." },
+];
+
+const goodFit = [
+  "You want senior people doing the work, not juniors",
+  "You need more than one channel covered — web, social, video, ads",
+  "You're tired of stitching together different freelancers",
+  "You want strategy and execution under one roof",
+  "You care about results, not just deliverables",
+  "You want a long-term partner, not a one-off vendor",
 ];
 
 const faqs: FaqItem[] = [
@@ -64,10 +73,37 @@ export default async function ContactPage() {
       <PageHero
         label="Contact"
         title="Start a project"
-        intro="Tell us what you're building. Fill in the form or reach out directly — we reply within one business day."
+        intro="Tell us what you're building. Fill in the form or reach out directly — we reply within one business day and get straight to the point."
       />
 
-      <section className="max-w-site container-px pb-16 md:pb-20">
+      {/* Good fit checklist */}
+      <section className="bg-ink py-10 text-bone md:py-14">
+        <div className="max-w-site container-px grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+          <Reveal>
+            <p className="chip text-bone/50">Is this for you?</p>
+            <h2 className="mt-6 font-display text-3xl font-semibold uppercase leading-tight tracking-tight md:text-4xl">
+              You&apos;re in the right place if&hellip;
+            </h2>
+          </Reveal>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {goodFit.map((item, i) => (
+              <Reveal key={item} delay={i} as="div">
+                <div className="flex items-start gap-3 rounded-xl border border-bone/10 p-4">
+                  <span className="mt-0.5 text-accent-400">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                      <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  <span className="text-sm text-bone/75">{item}</span>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Form + sidebar */}
+      <section className="max-w-site container-px py-12 md:py-20">
         <div className="grid gap-16 lg:grid-cols-[1.4fr_1fr]">
           <Reveal>
             <ContactForm />
@@ -76,7 +112,7 @@ export default async function ContactPage() {
           <Reveal delay={1}>
             <aside className="space-y-10 lg:border-l lg:border-ink/10 lg:pl-16">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Email</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Email us directly</p>
                 <a
                   href={`mailto:${settings.contact_email}`}
                   className="link-underline mt-2 block font-display text-xl"
@@ -99,14 +135,19 @@ export default async function ContactPage() {
 
               {settings.contact_address && (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Where</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Where we work</p>
                   <p className="mt-2 font-display text-xl">{settings.contact_address}</p>
                 </div>
               )}
 
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Response time</p>
+                <p className="mt-2 font-display text-xl">Within 1 business day</p>
+              </div>
+
               {settings.socials.length > 0 && (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Follow</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-ink/40">Follow our work</p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     {settings.socials.map((s) => (
                       <a
@@ -129,7 +170,7 @@ export default async function ContactPage() {
       </section>
 
       {/* What happens next */}
-      <section className="bg-ink py-16 text-bone md:py-24">
+      <section className="bg-ink py-12 text-bone md:py-20">
         <div className="max-w-site container-px">
           <Reveal>
             <p className="chip text-bone/50">What happens next</p>
@@ -137,7 +178,7 @@ export default async function ContactPage() {
               From hello to launch
             </h2>
           </Reveal>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-bone/10 bg-bone/10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-bone/10 bg-bone/10 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((s, i) => (
               <Reveal key={s.n} delay={i} as="div">
                 <div className="h-full bg-ink p-8">

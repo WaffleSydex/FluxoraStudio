@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   tagline: "Marketing in motion.",
   footer_blurb:
     "A creative marketing studio building brands, content and momentum. Websites, social, video and everything in between.",
-  contact_email: "hello@fluxorastudio.com",
+  contact_email: "info@fluxorastudio.com",
   contact_phone: "",
   contact_address: "Remote / Worldwide",
   socials: [

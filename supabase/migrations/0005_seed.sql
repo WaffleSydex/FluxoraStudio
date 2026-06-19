@@ -11,7 +11,7 @@ values (
   'Fluxora Studio',
   'Marketing in motion.',
   'A creative marketing studio building brands, content and momentum. Websites, social, video and everything in between.',
-  'hello@fluxorastudio.com',
+  'info@fluxorastudio.com',
   '+1 (000) 000-0000',
   'Remote / Worldwide',
   '[

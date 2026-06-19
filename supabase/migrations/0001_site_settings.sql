@@ -9,7 +9,7 @@ create table if not exists public.site_settings (
   company_name  text        not null default 'Fluxora Studio',
   tagline       text        not null default 'Marketing in motion.',
   footer_blurb  text        not null default '',
-  contact_email text        not null default 'hello@fluxorastudio.com',
+  contact_email text        not null default 'info@fluxorastudio.com',
   contact_phone text        not null default '',
   contact_address text      not null default '',
   -- socials is an array of objects: [{ "platform": "instagram", "url": "https://..." }, ...]

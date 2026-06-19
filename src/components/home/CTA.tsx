@@ -12,7 +12,7 @@ export default function CTA() {
         />
         <div className="max-w-site container-px mt-12 flex items-center justify-center">
           <span className="inline-flex items-center gap-4 rounded-full border border-bone/30 px-8 py-5 text-sm uppercase tracking-[0.2em] transition-colors duration-500 group-hover:bg-bone group-hover:text-ink">
-            hello@fluxorastudio.com
+            info@fluxorastudio.com
             <span className="transition-transform duration-500 ease-expo group-hover:translate-x-1">
               &#8594;
             </span>
